@@ -2,7 +2,7 @@
 package fr.estiam.traillog.data.local
 
 import androidx.paging.PagingSource
-import androidx.paging.map
+import androidx.paging.PagingState
 import fr.estiam.traillog.data.TrailRepository
 import fr.estiam.traillog.model.Trail
 import fr.estiam.traillog.model.TrailSortOrder
@@ -59,15 +59,36 @@ class RoomTrailRepository(
                 dao.pageName()
         }
 
-        // Convertir TrailEntity en Trail
-        // tout en conservant l'invalidation de Room
-        return source.map { entity ->
-            entity.toDomain()
-        }
+        return TrailPagingSource(source)
     }
 
     // Le chargement initial sera réalisé dans le Lab 2
     override suspend fun seedIfNeeded() {
         // TODO M3-LAB2 : import du fichier JSON
     }
+}
+
+private class TrailPagingSource(
+    private val source: PagingSource<Int, TrailEntity>
+) : PagingSource<Int, Trail>() {
+
+    init {
+        source.registerInvalidatedCallback { invalidate() }
+    }
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Trail> =
+        when (val result = source.load(params)) {
+            is LoadResult.Page -> LoadResult.Page(
+                data = result.data.map { it.toDomain() },
+                prevKey = result.prevKey,
+                nextKey = result.nextKey,
+                itemsBefore = result.itemsBefore,
+                itemsAfter = result.itemsAfter
+            )
+            is LoadResult.Error -> LoadResult.Error(result.throwable)
+            is LoadResult.Invalid -> LoadResult.Invalid()
+        }
+
+    override fun getRefreshKey(state: PagingState<Int, Trail>): Int? =
+        state.anchorPosition
 }
