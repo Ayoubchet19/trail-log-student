@@ -1,3 +1,15 @@
+
 package fr.estiam.traillog.data.local
 
-// TODO M3-LAB1 : écrire TrailDatabase.kt et le raccorder aux contrats du projet.
+import androidx.room.Database
+import androidx.room.RoomDatabase
+
+@Database(
+    entities = [TrailEntity::class],
+    version = 1,
+    exportSchema = false
+)
+abstract class TrailDatabase : RoomDatabase() {
+
+    abstract fun trailDao(): TrailDao
+}
