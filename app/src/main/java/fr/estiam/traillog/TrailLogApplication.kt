@@ -5,7 +5,7 @@ import android.app.Application
 import androidx.room.Room
 import fr.estiam.traillog.data.TrailRepository
 import fr.estiam.traillog.data.PreferencesRepository
-import fr.estiam.traillog.data.MemoryPreferencesRepository
+import fr.estiam.traillog.data.DataStorePreferencesRepository
 import fr.estiam.traillog.data.local.TrailDatabase
 import fr.estiam.traillog.data.local.RoomTrailRepository
 import fr.estiam.traillog.worker.TrailReminderWorker
@@ -30,9 +30,8 @@ class TrailLogApplication : Application() {
         RoomTrailRepository(database.trailDao())
     }
 
-    // Les préférences restent en mémoire pour le Lab 3
     val settings: PreferencesRepository by lazy {
-        MemoryPreferencesRepository()
+        DataStorePreferencesRepository(applicationContext)
     }
 
     override fun onCreate() {
