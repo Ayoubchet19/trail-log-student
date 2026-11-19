@@ -25,12 +25,19 @@ class EditTrailActivity : AppCompatActivity() {
             val distance = b.distanceInput.text.toString().toDoubleOrNull()
             val elevation = b.elevationInput.text.toString().toIntOrNull()
             if (name.isBlank() || distance == null || !distance.isFinite() || distance < 0 || elevation == null || elevation < 0) {
+                Log.d("TrailLogSave", "Save rejected during input validation: nameBlank=${name.isBlank()}, distance=$distance, elevation=$elevation")
                 Snackbar.make(b.root, R.string.invalid_fields, Snackbar.LENGTH_LONG).show(); return@setOnClickListener
             }
             val value = (original ?: Trail(UUID.randomUUID().toString(), name, "", distance, elevation)).copy(
                 name = name, region = b.regionInput.text.toString().trim(), distanceKm = distance,
                 elevationGainM = elevation, notes = b.notesInput.text.toString(), updatedAt = System.currentTimeMillis())
-            lifecycleScope.launch { app.trails.save(value); setResult(RESULT_OK); finish() }
+            Log.d("TrailLogSave", "Save accepted: name=$name, distanceKm=$distance, elevationGainM=$elevation")
+            lifecycleScope.launch {
+                app.trails.save(value)
+                Log.d("TrailLogSave", "Save persisted: id=${value.id}")
+                setResult(RESULT_OK)
+                finish()
+            }
         }
     }
     private fun show(value: Trail) {
