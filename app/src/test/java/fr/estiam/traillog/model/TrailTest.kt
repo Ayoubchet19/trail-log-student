@@ -13,6 +13,7 @@ class TrailTest {
     }
     @Test fun milesConversion() {
         assertTrue(TrailFormatter.distance(10.0, DistanceUnit.MI).replace(',', '.').contains("6.2"))
+    }
     @Test fun acceptsHighElevationGain() {
         assertTrue(Trail("t1", "Mountain Test", "Alpes", 8.0, 750).isValid())
     }
