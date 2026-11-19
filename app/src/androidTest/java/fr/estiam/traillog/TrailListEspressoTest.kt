@@ -2,28 +2,52 @@ package fr.estiam.traillog
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.recyclerview.widget.RecyclerView
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
+import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import fr.estiam.traillog.ui.MainActivity
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.UUID
 
 /** M5 Lab 2: implement Espresso UI tests using the existing TrailLog view IDs. */
 @RunWith(AndroidJUnit4::class)
 class TrailListEspressoTest {
     @get:Rule val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
-    // A skipped placeholder keeps JUnit 4 discovery valid in the unfinished starter.
-    // Replace this with your own @Test methods during the lab.
-    @Ignore("Student exercise: implement the catalogue Espresso assertions")
     @Test
-    fun implementCatalogueTests() {
-        // TODO: Check R.id.trailList is displayed with Espresso.
+    fun catalogueIsDisplayed() {
+        onView(withId(R.id.trailList)).check(matches(isDisplayed()))
     }
 
-    // TODO: Check that R.id.addButton opens the edit form.
-    // TODO: Enter a valid trail through the UI and save it.
-    // TODO: Scroll to the created RecyclerView item by content and assert its text.
-    // TODO: Handle asynchronous Room/Paging3 updates without Thread.sleep().
-    // TODO: Avoid stale data / clean up only the records created by your tests.
+    @Test
+    fun addTrailFromCatalogueAndFindCreatedRow() {
+        val uniqueName = "Espresso Trail ${UUID.randomUUID().toString().substring(0, 8)}"
+
+        onView(withId(R.id.addButton)).perform(click())
+        onView(withId(R.id.nameInput)).perform(replaceText(uniqueName), closeSoftKeyboard())
+        onView(withId(R.id.regionInput)).perform(replaceText("Alpes"), closeSoftKeyboard())
+        onView(withId(R.id.distanceInput)).perform(replaceText("10.0"), closeSoftKeyboard())
+        onView(withId(R.id.elevationInput)).perform(replaceText("250"), closeSoftKeyboard())
+        onView(withId(R.id.saveButton)).perform(click())
+
+        onView(withId(R.id.trailList)).check(matches(isDisplayed()))
+        onView(withId(R.id.trailList)).perform(
+            RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+                hasDescendant(withText(uniqueName))
+            )
+        )
+        onView(withId(R.id.trailList)).check(
+            matches(hasDescendant(withText(uniqueName)))
+        )
+    }
 }
